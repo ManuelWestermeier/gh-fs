@@ -3,14 +3,14 @@ import crypto from "crypto";
 
 class GitHubFS {
   constructor({
-    authToken,
-    owner,
-    repo,
+    authToken = "",
+    owner = "",
+    repo = "",
     defaultCommitter = {
       name: "Default Committer",
       email: "default@example.com",
     },
-    encryptionKey,
+    encryptionKey = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
   }) {
     this.octokit = new Octokit({ auth: authToken });
     this.owner = owner;
@@ -19,7 +19,7 @@ class GitHubFS {
     this.encryptionKey = encryptionKey;
   }
 
-  encrypt(content) {
+  encrypt(content = "") {
     const key = crypto.scryptSync(this.encryptionKey, "salt", 32);
     const iv = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv("aes-256-cbc", key, iv);
@@ -30,7 +30,7 @@ class GitHubFS {
     return `${iv.toString("hex")}:${encrypted.toString("hex")}`;
   }
 
-  decrypt(content) {
+  decrypt(content = "") {
     const [ivHex, encryptedHex] = content.split(":");
     const iv = Buffer.from(ivHex, "hex");
     const encrypted = Buffer.from(encryptedHex, "hex");
@@ -43,7 +43,7 @@ class GitHubFS {
     return decrypted.toString("utf8");
   }
 
-  async getFileMetadata(path) {
+  async getFileMetadata(path = "") {
     try {
       const { data } = await this.octokit.request(
         "GET /repos/{owner}/{repo}/contents/{path}",
@@ -60,7 +60,7 @@ class GitHubFS {
     }
   }
 
-  async writeFile(path, content, message = new Date().toString()) {
+  async writeFile(path = "", content = "", message = new Date().toString()) {
     let sha = undefined;
     const metadata = await this.getFileMetadata(path);
     if (metadata) sha = metadata.sha;
@@ -85,7 +85,7 @@ class GitHubFS {
     return data;
   }
 
-  async readFile(path) {
+  async readFile(path = "") {
     const metadata = await this.getFileMetadata(path);
     if (!metadata) throw new Error(`File '${path}' does not exist.`);
 
@@ -93,7 +93,7 @@ class GitHubFS {
     return this.decrypt(content);
   }
 
-  async deleteFile(path, message = new Date().toString()) {
+  async deleteFile(path = "", message = new Date().toString()) {
     const metadata = await this.getFileMetadata(path);
     if (!metadata) throw new Error(`File '${path}' does not exist.`);
 
@@ -112,7 +112,7 @@ class GitHubFS {
     return data;
   }
 
-  async deleteDir(path, message = new Date().toString()) {
+  async deleteDir(path = "", message = new Date().toString()) {
     const files = await this.readDir(path); // List files in the directory
 
     if (!files || files.length === 0)
@@ -135,12 +135,12 @@ class GitHubFS {
     };
   }
 
-  async createDir(path, message = "Creating directory") {
+  async createDir(path = "", message = "Creating directory") {
     const readmePath = `${path}/.keep`;
     return this.writeFile(readmePath, "#", message);
   }
 
-  async readDir(path) {
+  async readDir(path = "") {
     try {
       const { data } = await this.octokit.request(
         "GET /repos/{owner}/{repo}/contents/{path}",
@@ -166,7 +166,7 @@ class GitHubFS {
     }
   }
 
-  async exists(path) {
+  async exists(path = "") {
     try {
       const metadata = await this.getFileMetadata(path);
       return !!metadata;
@@ -176,13 +176,13 @@ class GitHubFS {
     }
   }
 
-  async moveFile(srcPath, destPath, message = "Moving file") {
+  async moveFile(srcPath = "", destPath = "", message = "Moving file") {
     const content = await this.readFile(srcPath);
     await this.writeFile(destPath, content, message);
     await this.deleteFile(srcPath, `Deleted after move: ${message}`);
   }
 
-  async copyFile(srcPath, destPath, message = "Copying file") {
+  async copyFile(srcPath = "", destPath = "", message = "Copying file") {
     const content = await this.readFile(srcPath);
     await this.writeFile(destPath, content, message);
   }

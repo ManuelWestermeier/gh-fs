@@ -32,16 +32,16 @@ const githubFS = new GitHubFS({
 });
 
 //exists
-await githubFS.exists("path");
+await githubFS.exists(PATH);
 //files
-await githubFS.getFileMetadata("path");
-await githubFS.writeFile("path", "conetnt", "commitmessage/date");
-await githubFS.readFile("path");
-await githubFS.deleteFile("path", "commitmessage/date");
-await githubFS.moveFile("src-path", "dest-path", "commitmessage/date");
-await githubFS.copyFile("src-path", "dest-path", "commitmessage/date");
+await githubFS.getFileMetadata(PATH);
+await githubFS.writeFile(PATH, CONTENT, COMMITMESSAGE_DEFAULT_IS_DATE);
+await githubFS.readFile(PATH);
+await githubFS.deleteFile(PATH, COMMITMESSAGE_DEFAULT_IS_DATE);
+await githubFS.moveFile(SRC_PATH, DEST_PATH, COMMITMESSAGE_DEFAULT_IS_DATE);
+await githubFS.copyFile(SRC_PATH, DEST_PATH, COMMITMESSAGE_DEFAULT_IS_DATE);
 //dirs
-await githubFS.createDir("dir", "commitmessage/date");
-await githubFS.readDir("dir");
-await githubFS.deleteDir("dir", "commitmessage/date");
+await githubFS.createDir(DIR, COMMITMESSAGE_DEFAULT_IS_DATE);
+await githubFS.readDir(DIR);
+await githubFS.deleteDir(DIR, COMMITMESSAGE_DEFAULT_IS_DATE);
 ```
