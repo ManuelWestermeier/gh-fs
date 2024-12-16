@@ -19,27 +19,41 @@ class GitHubFS {
     this.encryptionKey = encryptionKey;
   }
 
-  encrypt(content = "") {
-    const key = crypto.scryptSync(this.encryptionKey, "salt", 32);
-    const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv("aes-256-cbc", key, iv);
-    const encrypted = Buffer.concat([
-      cipher.update(content, "utf8"),
-      cipher.final(),
-    ]);
-    return `${iv.toString("hex")}:${encrypted.toString("hex")}`;
+  // Encrypt function
+  async encrypt(content = "") {
+    const salt = crypto.randomBytes(16); // Generate a new random salt for each encryption
+    const key = await crypto.scryptSync(this.encryptionKey, salt, 32); // Use scrypt to derive a key
+    const iv = crypto.randomBytes(12); // AES-GCM uses a 12-byte IV
+
+    const cipher = crypto.createCipheriv("aes-256-gcm", key, iv);
+    let encrypted = cipher.update(content, "utf8");
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+
+    const tag = cipher.getAuthTag(); // Authentication tag for AES-GCM
+
+    // Return the concatenated result: salt, iv, ciphertext, and tag in hex format
+    return `${salt.toString("hex")}:${iv.toString("hex")}:${encrypted.toString(
+      "hex"
+    )}:${tag.toString("hex")}`;
   }
 
-  decrypt(content = "") {
-    const [ivHex, encryptedHex] = content.split(":");
+  // Decrypt function
+  async decrypt(content = "") {
+    const [saltHex, ivHex, encryptedHex, tagHex] = content.split(":");
+    const salt = Buffer.from(saltHex, "hex");
     const iv = Buffer.from(ivHex, "hex");
     const encrypted = Buffer.from(encryptedHex, "hex");
-    const key = crypto.scryptSync(this.encryptionKey, "salt", 32);
-    const decipher = crypto.createDecipheriv("aes-256-cbc", key, iv);
-    const decrypted = Buffer.concat([
-      decipher.update(encrypted),
-      decipher.final(),
-    ]);
+    const tag = Buffer.from(tagHex, "hex");
+
+    // Derive the key using the stored salt
+    const key = await crypto.scryptSync(this.encryptionKey, salt, 32);
+
+    const decipher = crypto.createDecipheriv("aes-256-gcm", key, iv);
+    decipher.setAuthTag(tag); // Set the authentication tag
+
+    let decrypted = decipher.update(encrypted);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+
     return decrypted.toString("utf8");
   }
 
