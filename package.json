@@ -3,6 +3,7 @@
   "version": "1.0.4",
   "description": "a filesystem like github storage provider, that stores all files on github encrypted and free",
   "main": "gh-fs.js",
+  "types": "gh-fs.ts",
   "scripts": {
     "test": "node test.js"
   },
