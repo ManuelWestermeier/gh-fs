@@ -12,3 +12,17 @@ const githubFS = new GitHubFS({
   },
   encryptionKey: "my-secure-encryption-key-32!", // Use a strong, secure key
 });
+
+//exists
+await githubFS.exists("path");
+//files
+await githubFS.getFileMetadata("path");
+await githubFS.writeFile("path", "conetnt", "commitmessage/date");
+await githubFS.readFile("path");
+await githubFS.deleteFile("path", "commitmessage/date");
+await githubFS.moveFile("src-path", "dest-path", "commitmessage/date");
+await githubFS.copyFile("src-path", "dest-path", "commitmessage/date");
+//dirs
+await githubFS.createDir("dir", "commitmessage/date");
+await githubFS.readDir("dir");
+await githubFS.deleteDir("dir", "commitmessage/date");
