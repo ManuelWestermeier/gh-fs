@@ -8,10 +8,16 @@ directorys: "dir/dir"
 
 files: "dir/dir/file.ext"
 
+### Install
+
+```bat
+npm i gh-fs
+```
+
 ## Functions
 
 ```js
-import GitHubFS from "./gh-fs.js";
+import GitHubFS from "gh-fs";
 
 // Initialize GitHubFS instance
 const githubFS = new GitHubFS({
