@@ -1,0 +1,31 @@
+{
+  "name": "gh-fs",
+  "version": "1.0.0",
+  "description": "a filesystem like github storage provider, that stores all files on github encrypted and free",
+  "main": "gh-fs.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ManuelWestermeier/gh-fs.git"
+  },
+  "keywords": [
+    "github",
+    "free",
+    "storage",
+    "cloud",
+    "api",
+    "encrypted"
+  ],
+  "author": "Manuel Westermeier",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ManuelWestermeier/gh-fs/issues"
+  },
+  "homepage": "https://github.com/ManuelWestermeier/gh-fs#readme",
+  "type": "module",
+  "dependencies": {
+    "@octokit/core": "^6.1.2"
+  }
+}
